@@ -5,7 +5,7 @@ module Postmark
   class HttpClient
     attr_accessor :api_token
     attr_reader :http, :secure, :proxy_host, :proxy_port, :proxy_user,
-                :proxy_pass, :host, :port, :path_prefix,
+                :proxy_pass, :proxy_cert, :host, :port, :path_prefix,
                 :http_open_timeout, :http_read_timeout, :http_ssl_version,
                 :auth_header_name
 
@@ -107,6 +107,11 @@ module Postmark
       http.open_timeout = self.http_open_timeout
       http.use_ssl = !!self.secure
       http.ssl_version = self.http_ssl_version if self.http_ssl_version && http.respond_to?(:ssl_version=)
+      if self.proxy_cert
+        store = OpenSSL::X509::Store.new
+        store.add_cert self.proxy_cert
+        http.cert_store = store
+      end
       http
     end
   end
